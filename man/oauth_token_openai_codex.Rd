@@ -4,7 +4,7 @@
 \title{Get a valid OpenAI Codex token, using the cache and refreshing as needed}
 \usage{
 oauth_token_openai_codex(cache = oauth_cache_path(openai_codex_client()),
-                         open_url = interactive(), timeout = 600)
+                         open_url = interactive(), timeout = 600, login = TRUE)
 }
 \arguments{
 \item{cache}{Cache file path, or \code{NULL} to disable caching. Defaults to
@@ -14,10 +14,16 @@ oauth_token_openai_codex(cache = oauth_cache_path(openai_codex_client()),
 sessions only).}
 
 \item{timeout}{Seconds to wait for device authorization (default 600).}
+
+\item{login}{Run the device-login flow when no usable cached/refreshable
+token exists (default \code{TRUE}). Pass \code{FALSE} to get the cached
+(and refreshed-if-needed) token or \code{NULL}, without ever prompting --
+useful inside a request path where an interactive login would be wrong.}
 }
 \value{
 A \code{tinyoauth_token} with \code{access_token}, \code{refresh_token},
-  \code{expires_at}, and \code{account_id}.
+  \code{expires_at}, and \code{account_id}; or \code{NULL} when \code{login}
+  is \code{FALSE} and no usable token is cached.
 }
 \description{
 The Codex analogue of [oauth_token]: returns a cached token if still valid,

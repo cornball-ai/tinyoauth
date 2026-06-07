@@ -104,3 +104,8 @@ got <- tinyoauth::oauth_token_openai_codex(cache = tmpcache, open_url = FALSE)
 expect_equal(got$access_token, "cached-at")
 expect_equal(got$account_id, "acct_cached")
 unlink(tmpcache)
+
+# --- login = FALSE returns NULL (no prompt) when no usable token is cached ---
+emptycache <- tempfile(fileext = ".rds")
+expect_null(tinyoauth::oauth_token_openai_codex(cache = emptycache, login = FALSE))
+expect_false(file.exists(emptycache))

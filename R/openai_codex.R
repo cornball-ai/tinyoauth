@@ -172,8 +172,13 @@ openai_codex_account_id <- function(token) {
 #' @param open_url Open the verification URL automatically (default: interactive
 #'   sessions only).
 #' @param timeout Seconds to wait for device authorization (default 600).
+#' @param login Run the device-login flow when no usable cached/refreshable
+#'   token exists (default \code{TRUE}). Pass \code{FALSE} to get the cached
+#'   (and refreshed-if-needed) token or \code{NULL}, without ever prompting --
+#'   useful inside a request path where an interactive login would be wrong.
 #' @return A \code{tinyoauth_token} with \code{access_token}, \code{refresh_token},
-#'   \code{expires_at}, and \code{account_id}.
+#'   \code{expires_at}, and \code{account_id}; or \code{NULL} when \code{login}
+#'   is \code{FALSE} and no usable token is cached.
 #' @examples
 #' \dontrun{
 #' tok <- oauth_token_openai_codex()
@@ -183,7 +188,8 @@ openai_codex_account_id <- function(token) {
 #' }
 #' @export
 oauth_token_openai_codex <- function(cache = oauth_cache_path(openai_codex_client()),
-                                     open_url = interactive(), timeout = 600) {
+                                     open_url = interactive(), timeout = 600,
+                                     login = TRUE) {
     client <- openai_codex_client()
     tok <- if (!is.null(cache) && file.exists(cache)) {
         tryCatch(readRDS(cache), error = function(e) NULL)
@@ -199,11 +205,14 @@ oauth_token_openai_codex <- function(cache = oauth_cache_path(openai_codex_clien
     need_new <- is.null(tok) || is.null(tok$access_token) ||
     (oauth_expired(tok) && is.null(tok$refresh_token))
     if (need_new) {
+        if (!login) {
+            return(NULL)
+        }
         tok <- .codex_finalize(.codex_login(client, open_url = open_url,
                 timeout = timeout))
     }
 
-    if (!is.null(cache)) {
+    if (!is.null(cache) && !is.null(tok)) {
         dir.create(dirname(cache), recursive = TRUE, showWarnings = FALSE)
         saveRDS(tok, cache)
     }
