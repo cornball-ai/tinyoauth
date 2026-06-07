@@ -6,7 +6,8 @@
 oauth_bearer(token)
 }
 \arguments{
-\item{token}{A \code{tinyoauth_token} or a raw access-token string.}
+\item{token}{A \code{tinyoauth_token}, a (legacy) httr \code{Token2.0}, or a
+raw access-token string.}
 }
 \value{
 A string like \code{"Bearer abc123"} for use as an HTTP

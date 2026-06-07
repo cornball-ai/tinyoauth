@@ -55,7 +55,8 @@ oauth_expired <- function(token, leeway = 60) {
 
 #' Authorization header value for a token
 #'
-#' @param token A \code{tinyoauth_token} or a raw access-token string.
+#' @param token A \code{tinyoauth_token}, a (legacy) httr \code{Token2.0}, or a
+#'   raw access-token string.
 #' @return A string like \code{"Bearer abc123"} for use as an HTTP
 #'   \code{Authorization} header.
 #' @examples
@@ -65,10 +66,12 @@ oauth_expired <- function(token, leeway = 60) {
 #' }
 #' @export
 oauth_bearer <- function(token) {
-    if (inherits(token, "tinyoauth_token")) {
-        at <- token$access_token
+    at <- if (inherits(token, "tinyoauth_token")) {
+        token$access_token
+    } else if (inherits(token, "Token2.0")) {
+        token$credentials$access_token
     } else {
-        at <- token
+        token
     }
     paste("Bearer", at)
 }
