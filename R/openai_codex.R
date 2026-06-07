@@ -22,8 +22,7 @@
 #' @export
 openai_codex_client <- function() {
     base <- "https://auth.openai.com"
-    client <- oauth_client(
-                           id = "app_EMoamEEZ73f0CkXaXp7hrann",
+    client <- oauth_client(id = "app_EMoamEEZ73f0CkXaXp7hrann",
                            token_url = paste0(base, "/oauth/token"),
                            redirect_uri = paste0(base, "/deviceauth/callback"))
     client$device_usercode_url <- paste0(base, "/api/accounts/deviceauth/usercode")
@@ -86,8 +85,8 @@ openai_codex_client <- function() {
 #' @param sleep Sleep function, injectable for testing.
 #' @param post JSON-POST function, injectable for testing.
 #' @keywords internal
-.codex_device_poll <- function(client, device, timeout = 600, sleep = Sys.sleep,
-                               post = .codex_post_json) {
+.codex_device_poll <- function(client, device, timeout = 600,
+                               sleep = Sys.sleep, post = .codex_post_json) {
     interval <- as.numeric(device$interval %||% 5)
     deadline <- Sys.time() + timeout
     repeat {
@@ -201,7 +200,7 @@ oauth_token_openai_codex <- function(cache = oauth_cache_path(openai_codex_clien
     (oauth_expired(tok) && is.null(tok$refresh_token))
     if (need_new) {
         tok <- .codex_finalize(.codex_login(client, open_url = open_url,
-                                            timeout = timeout))
+                timeout = timeout))
     }
 
     if (!is.null(cache)) {
@@ -210,3 +209,4 @@ oauth_token_openai_codex <- function(cache = oauth_cache_path(openai_codex_clien
     }
     tok
 }
+

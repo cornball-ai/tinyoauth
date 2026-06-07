@@ -47,3 +47,4 @@ oauth_jwt_payload <- function(x) {
     }
     tryCatch(jsonlite::fromJSON(rawToChar(raw)), error = function(e) NULL)
 }
+
