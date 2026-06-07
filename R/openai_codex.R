@@ -73,8 +73,18 @@ openai_codex_client <- function() {
     if (identical(err, "slow_down")) {
         return("slow_down")
     }
-    if (identical(err, "deviceauth_authorization_pending") ||
-        identical(err, "authorization_pending")) {
+    # Hard stops: the user denied, or the device code expired/was cancelled.
+    if (err %in% c("access_denied", "expired_token", "deviceauth_token_expired",
+                   "cancelled", "canceled")) {
+        return("error")
+    }
+    if (err %in% c("deviceauth_authorization_pending", "authorization_pending")) {
+        return("pending")
+    }
+    # While authorization is still pending, OpenAI's poll endpoint answers with
+    # 403/404 (sometimes with an empty or differently-shaped body). Keep polling
+    # on those unless the body was a hard denial (handled above).
+    if (status %in% c(403L, 404L)) {
         return("pending")
     }
     "error"
@@ -134,7 +144,7 @@ openai_codex_client <- function() {
 #' Attach the ChatGPT account id (from the access-token JWT) to a token
 #' @keywords internal
 .codex_finalize <- function(token) {
-    if (!is.null(token)) {
+    if (!is.null(token) && is.null(token$account_id)) {
         token$account_id <- openai_codex_account_id(token)
     }
     token
@@ -198,8 +208,7 @@ oauth_token_openai_codex <- function(cache = oauth_cache_path(openai_codex_clien
     }
 
     if (!is.null(tok) && oauth_expired(tok) && !is.null(tok$refresh_token)) {
-        tok <- tryCatch(.codex_finalize(oauth_refresh(client, tok)),
-                        error = function(e) NULL)
+        tok <- tryCatch(oauth_refresh(client, tok), error = function(e) NULL)
     }
 
     need_new <- is.null(tok) || is.null(tok$access_token) ||
@@ -208,8 +217,19 @@ oauth_token_openai_codex <- function(cache = oauth_cache_path(openai_codex_clien
         if (!login) {
             return(NULL)
         }
-        tok <- .codex_finalize(.codex_login(client, open_url = open_url,
-                timeout = timeout))
+        tok <- .codex_login(client, open_url = open_url, timeout = timeout)
+    }
+
+    # Finalize on every path -- cached, refreshed, or freshly logged in -- so the
+    # account id is always derived from the current access token, not just after
+    # a refresh/login.
+    tok <- .codex_finalize(tok)
+
+    # A token with no derivable account id is unusable for Codex requests; in
+    # non-interactive (login = FALSE) callers, return NULL rather than hand back
+    # something that will fail later.
+    if (!login && (is.null(tok) || is.null(tok$account_id))) {
+        return(NULL)
     }
 
     if (!is.null(cache) && !is.null(tok)) {
