@@ -50,6 +50,16 @@ expect_equal(tinyoauth:::.codex_poll_classify(429L,
              list(error = "slow_down")), "slow_down")
 expect_equal(tinyoauth:::.codex_poll_classify(400L,
              list(error = "access_denied")), "error")
+# OpenAI answers 403/404 while authorization is still pending -> keep polling
+expect_equal(tinyoauth:::.codex_poll_classify(403L, list()), "pending")
+expect_equal(tinyoauth:::.codex_poll_classify(404L, list()), "pending")
+expect_equal(tinyoauth:::.codex_poll_classify(403L,
+             list(error = "deviceauth_authorization_pending")), "pending")
+# ...but a hard denial stops even on a 403
+expect_equal(tinyoauth:::.codex_poll_classify(403L,
+             list(error = "access_denied")), "error")
+expect_equal(tinyoauth:::.codex_poll_classify(400L,
+             list(error = "expired_token")), "error")
 
 # --- .codex_finalize attaches account_id ---
 fin <- tinyoauth:::.codex_finalize(
@@ -79,6 +89,24 @@ expect_equal(auth$authorization_code, "the_code")
 expect_equal(auth$code_verifier, "the_verifier")
 expect_equal(calls, 3L)
 
+# --- .codex_device_poll: a 403 pending response keeps polling (not an error) ---
+calls403 <- 0L
+fake_403_then_ok <- function(url, body) {
+    calls403 <<- calls403 + 1L
+    if (calls403 < 3L) {
+        list(status = 403L, body = list(), raw = "")
+    } else {
+        list(status = 200L,
+             body = list(authorization_code = "ac", code_verifier = "cv"),
+             raw = "")
+    }
+}
+auth403 <- tinyoauth:::.codex_device_poll(
+    cl, list(device_auth_id = "d", user_code = "U", interval = 1),
+    timeout = 60, sleep = function(...) invisible(NULL), post = fake_403_then_ok)
+expect_equal(auth403$authorization_code, "ac")
+expect_equal(calls403, 3L)
+
 # --- .codex_device_poll: hard error stops ---
 expect_error(
     tinyoauth:::.codex_device_poll(
@@ -105,7 +133,25 @@ expect_equal(got$access_token, "cached-at")
 expect_equal(got$account_id, "acct_cached")
 unlink(tmpcache)
 
+# --- a valid cached token missing account_id is finalized from its JWT ---
+jwtcache <- tempfile(fileext = ".rds")
+cached_no_acct <- structure(list(access_token = acct_jwt,
+                                 expires_at = Sys.time() + 3600),
+                            class = "tinyoauth_token")
+saveRDS(cached_no_acct, jwtcache)
+fin_got <- tinyoauth::oauth_token_openai_codex(cache = jwtcache, login = FALSE)
+expect_equal(fin_got$account_id, "acct_xyz")          # derived from the JWT
+expect_equal(readRDS(jwtcache)$account_id, "acct_xyz") # and re-cached
+unlink(jwtcache)
+
 # --- login = FALSE returns NULL (no prompt) when no usable token is cached ---
 emptycache <- tempfile(fileext = ".rds")
 expect_null(tinyoauth::oauth_token_openai_codex(cache = emptycache, login = FALSE))
 expect_false(file.exists(emptycache))
+
+# --- login = FALSE with a token whose account id can't be derived -> NULL ---
+noacctcache <- tempfile(fileext = ".rds")
+saveRDS(structure(list(access_token = "not-a-jwt", expires_at = Sys.time() + 3600),
+                  class = "tinyoauth_token"), noacctcache)
+expect_null(tinyoauth::oauth_token_openai_codex(cache = noacctcache, login = FALSE))
+unlink(noacctcache)

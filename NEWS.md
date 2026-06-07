@@ -1,3 +1,12 @@
+# tinyoauth 0.0.1.2
+
+* `oauth_token_openai_codex()` device polling now keeps polling on HTTP
+  403/404 (OpenAI's "still pending" responses) instead of erroring, while
+  still stopping immediately on hard denials. It also finalizes the token on
+  every path, so a valid cached token missing `account_id` has it derived from
+  the access-token JWT; with `login = FALSE`, a token whose account id can't be
+  determined returns `NULL`.
+
 # tinyoauth 0.0.1.1
 
 * Added an OpenAI Codex (ChatGPT) device-login route: `oauth_token_openai_codex()`,
