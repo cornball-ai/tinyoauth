@@ -1,3 +1,11 @@
+# tinyoauth 0.0.1.3
+
+* Fixed a crash in `oauth_token_openai_codex()` device login when OpenAI's poll
+  endpoint returns its `error` as a nested object (`{code, message}`) rather
+  than a string — the classifier compared a length>1 value and errored on the
+  first poll. The error field is now reduced to a single string before
+  matching.
+
 # tinyoauth 0.0.1.2
 
 * `oauth_token_openai_codex()` device polling now keeps polling on HTTP
