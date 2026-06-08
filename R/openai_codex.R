@@ -69,16 +69,28 @@ openai_codex_client <- function() {
     if (status < 300L && !is.null(body$authorization_code)) {
         return("ok")
     }
+    # `error` may be a bare string or a nested object ({code, message, type}).
+    # Reduce it to a single string before matching -- a length>1 value would
+    # blow up the comparisons below.
     err <- body$error %||% body$error_code %||% ""
-    if (identical(err, "slow_down")) {
+    if (is.list(err)) {
+        err <- err$code %||% err$type %||% err$message %||% ""
+    }
+    err <- if (length(err) >= 1L) {
+        as.character(err)[1L]
+    } else {
+        ""
+    }
+
+    if (grepl("slow_down", err, fixed = TRUE)) {
         return("slow_down")
     }
     # Hard stops: the user denied, or the device code expired/was cancelled.
-    if (err %in% c("access_denied", "expired_token", "deviceauth_token_expired",
-                   "cancelled", "canceled")) {
+    if (grepl("access_denied|expired_token|deviceauth_token_expired|cancel", err)) {
         return("error")
     }
-    if (err %in% c("deviceauth_authorization_pending", "authorization_pending")) {
+    # Still waiting for the user to authorize.
+    if (grepl("authorization_pending", err, fixed = TRUE)) {
         return("pending")
     }
     # While authorization is still pending, OpenAI's poll endpoint answers with
@@ -113,8 +125,9 @@ openai_codex_client <- function() {
         } else if (identical(status, "slow_down")) {
             interval <- interval + 5
         } else if (identical(status, "error")) {
-            stop("openai_codex: device authorization failed: ",
-                 r$body$error %||% r$raw, call. = FALSE)
+            # r$body$error may be a nested object; r$raw is always a string.
+            stop("openai_codex: device authorization failed: ", r$raw,
+                 call. = FALSE)
         }
         # "pending" falls through and loops
     }

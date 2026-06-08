@@ -60,6 +60,21 @@ expect_equal(tinyoauth:::.codex_poll_classify(403L,
              list(error = "access_denied")), "error")
 expect_equal(tinyoauth:::.codex_poll_classify(400L,
              list(error = "expired_token")), "error")
+# error may arrive as a nested object {code, message} -- must not crash, and
+# must still classify correctly (the live-login crash, #poll-object-error)
+expect_equal(tinyoauth:::.codex_poll_classify(403L,
+             list(error = list(code = "deviceauth_authorization_pending",
+                               message = "pending"))), "pending")
+expect_equal(tinyoauth:::.codex_poll_classify(200L,
+             list(error = list(code = "authorization_pending"))), "pending")
+expect_equal(tinyoauth:::.codex_poll_classify(400L,
+             list(error = list(code = "access_denied",
+                               message = "user denied"))), "error")
+expect_equal(tinyoauth:::.codex_poll_classify(429L,
+             list(error = list(code = "slow_down"))), "slow_down")
+# object error with only a message, on a 403 -> still pending via status
+expect_equal(tinyoauth:::.codex_poll_classify(404L,
+             list(error = list(message = "not found yet"))), "pending")
 
 # --- .codex_finalize attaches account_id ---
 fin <- tinyoauth:::.codex_finalize(
