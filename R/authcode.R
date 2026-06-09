@@ -111,6 +111,28 @@ oauth_exchange_code <- function(client, code) {
     }
 }
 
+#' Is this a session where a loopback OAuth listener cannot catch the redirect?
+#'
+#' \code{TRUE} for SSH sessions, RStudio Server, and headless unix (no X or
+#' Wayland display): in all of these the browser runs on a different machine, so
+#' the redirect to a \code{127.0.0.1} listener never arrives and the listener
+#' would hang. [oauth_token_authcode] uses this to default to the manual paste
+#' flow. macOS desktops have no \code{DISPLAY} but a working browser, so they
+#' are not treated as headless.
+#' @keywords internal
+.oauth_no_loopback <- function() {
+    if (nzchar(Sys.getenv("SSH_CONNECTION")) || nzchar(Sys.getenv("SSH_TTY"))) {
+        return(TRUE)
+    }
+    if (identical(tolower(Sys.getenv("RSTUDIO_PROGRAM_MODE")), "server")) {
+        return(TRUE)
+    }
+    .Platform$OS.type == "unix" &&
+        !identical(Sys.info()[["sysname"]], "Darwin") &&
+        !nzchar(Sys.getenv("DISPLAY")) &&
+        !nzchar(Sys.getenv("WAYLAND_DISPLAY"))
+}
+
 #' Run the authorization-code flow end to end
 #'
 #' Prints (and optionally opens) the authorization URL, then obtains the
@@ -124,22 +146,33 @@ oauth_exchange_code <- function(client, code) {
 #'   \code{client$redirect_uri} (default 1410).
 #' @param open_browser Open the URL automatically (default: interactive only).
 #' @param timeout Seconds to wait for the redirect.
-#' @param manual If \code{TRUE}, skip the loopback listener: print the URL and
-#'   read the redirected address (or bare code) from the console. Use this on a
-#'   remote/headless box where the browser runs elsewhere and can't reach the
-#'   listener. The browser will show a "can't reach 127.0.0.1" page after you
-#'   approve -- that is expected; copy its address bar and paste it.
+#' @param manual Skip the loopback listener and read the redirected address (or
+#'   bare code) from the console instead. The default (\code{NA}) auto-detects:
+#'   it switches to manual on a remote/headless session (SSH, RStudio Server, or
+#'   unix with no display), where the browser runs elsewhere and the redirect
+#'   can never reach a local listener (so the listener would just hang). Pass
+#'   \code{TRUE}/\code{FALSE} to force it. In manual mode the browser shows a
+#'   "can't reach 127.0.0.1" page after you approve -- that is expected; copy
+#'   its address bar and paste it.
 #' @return A \code{tinyoauth_token} (with a refresh token, when the provider
 #'   issues one).
 #' @examples
 #' \dontrun{
 #' tok <- oauth_token_authcode(spotify, scope = "user-read-email")
-#' tok <- oauth_token_authcode(google, manual = TRUE)  # remote/headless
+#' tok <- oauth_token_authcode(google, manual = TRUE)  # force manual paste
 #' }
 #' @export
 oauth_token_authcode <- function(client, scope = NULL, port = 1410L,
                                  open_browser = interactive(), timeout = 120,
-                                 manual = FALSE) {
+                                 manual = NA) {
+    if (is.na(manual)) {
+        manual <- .oauth_no_loopback()
+        if (isTRUE(manual)) {
+            message("Remote/headless session detected -- using manual paste ",
+                    "authorization (the loopback listener can't catch the ",
+                    "redirect here). Pass manual = FALSE to force the listener.")
+        }
+    }
     state <- paste(sample(c(0:9, letters), 24, replace = TRUE), collapse = "")
     url <- oauth_authorize_url(client, scope = scope, state = state)
 
