@@ -37,6 +37,29 @@ expect_equal(q$code, "ABC123")
 expect_equal(q$state, "S1")
 expect_equal(length(tinyoauth:::.parse_request_query("GET / HTTP/1.1")), 0L)
 
+# --- manual paste parsing (.parse_redirect_input) ---------------------------
+# Full redirect URL as copied from the browser address bar
+u1 <- tinyoauth:::.parse_redirect_input(
+    "http://127.0.0.1:1410/?code=4/0Aabc-XYZ&state=S2&scope=foo")
+expect_equal(u1$code, "4/0Aabc-XYZ")
+expect_equal(u1$state, "S2")
+# URL-encoded code (Google encodes the slash) is decoded
+u2 <- tinyoauth:::.parse_redirect_input(
+    "http://127.0.0.1:1410/?code=4%2F0Aabc&state=S3")
+expect_equal(u2$code, "4/0Aabc")
+# A bare query string (no scheme/host)
+u3 <- tinyoauth:::.parse_redirect_input("code=ABC123&state=S4")
+expect_equal(u3$code, "ABC123")
+expect_equal(u3$state, "S4")
+# Just the code on its own
+expect_equal(tinyoauth:::.parse_redirect_input("4/0Aabc")$code, "4/0Aabc")
+# An error redirect surfaces the error
+expect_equal(tinyoauth:::.parse_redirect_input(
+    "http://127.0.0.1:1410/?error=access_denied")$error, "access_denied")
+# Whitespace and empty input
+expect_equal(tinyoauth:::.parse_redirect_input("  4/0Aabc  ")$code, "4/0Aabc")
+expect_equal(length(tinyoauth:::.parse_redirect_input("   ")), 0L)
+
 # --- token helpers ----------------------------------------------------------
 tok <- structure(list(access_token = "AT", refresh_token = "RT",
                       expires_at = Sys.time() + 3600),

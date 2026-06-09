@@ -1,3 +1,12 @@
+# tinyoauth 0.0.1.4
+
+* `oauth_token_authcode(manual = TRUE)` adds a no-listener mode for
+  remote/headless use: it prints step-by-step instructions, you approve in a
+  browser anywhere, then paste the redirected `127.0.0.1` address (or the bare
+  code) back at the prompt. Uses the same registered loopback `redirect_uri`,
+  so it is not the deprecated out-of-band flow. Flows through wrappers that pass
+  `...` to it (e.g. `tinytuber::yt_oauth(..., manual = TRUE)`).
+
 # tinyoauth 0.0.1.3
 
 * Fixed a crash in `oauth_token_openai_codex()` device login when OpenAI's poll
