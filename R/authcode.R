@@ -150,20 +150,23 @@ oauth_token_authcode <- function(client, scope = NULL, port = 1410L,
                 "     ", url, "\n\n",
                 "2. Approve access. If you are prompted, pick the correct ",
                 "account/channel.\n",
-                "3. Your browser will then try to open\n\n",
-                "     ", client$redirect_uri, "?code=...\n\n",
-                "   and show \"this site can't be reached\" or \"connection ",
+                "3. Your browser will then try to open ", client$redirect_uri,
+                "?code=...\n",
+                "   and show \"this site can't be reached\" / \"connection ",
                 "refused\".\n",
-                "   THAT IS EXPECTED -- nothing is listening there. The ",
-                "authorization\n",
-                "   code is sitting in the browser's address bar.\n",
-                "4. Copy the WHOLE address bar (or just the code= value) and ",
-                "paste it\n",
-                "   at the prompt below, then press Enter.\n")
+                "   THAT IS EXPECTED -- nothing is listening there; the code is ",
+                "in the\n   address bar.\n\n",
+                "4. On that failed page, copy the address bar:\n",
+                "     - select it:  Ctrl+L   (Cmd+L on macOS)\n",
+                "     - copy it:    Ctrl+C   (Cmd+C on macOS)\n",
+                "   then come back here and paste it at the prompt below.\n")
         if (isTRUE(open_browser)) {
             try(utils::browseURL(url), silent = TRUE)
         }
-        q <- .parse_redirect_input(readline("Paste redirect URL or code here: "))
+        # The prompt carries the key reminder, because it is the line still on
+        # screen when the user returns from the (now-broken) browser tab.
+        q <- .parse_redirect_input(
+            readline("Paste address bar [Ctrl+L, Ctrl+C to copy it] or code: "))
     } else {
         message("Open this URL to authorize:\n  ", url)
         if (isTRUE(open_browser)) {
