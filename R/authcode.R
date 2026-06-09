@@ -184,6 +184,13 @@ oauth_token_authcode <- function(client, scope = NULL, port = 1410L,
     if (!is.null(q$state) && !identical(q$state, state)) {
         stop("state mismatch -- possible CSRF; aborting", call. = FALSE)
     }
-    oauth_exchange_code(client, q$code)
+    tok <- oauth_exchange_code(client, q$code)
+    message("Authorization complete.",
+            if (!is.null(tok$refresh_token)) {
+                " A refresh token was issued, so this won't be needed again."
+            } else {
+                ""
+            })
+    tok
 }
 
