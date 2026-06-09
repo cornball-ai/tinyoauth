@@ -1,3 +1,12 @@
+# tinyoauth 0.0.1.6
+
+* `oauth_token_authcode()` now defaults `manual = NA`, which auto-detects a
+  remote/headless session (SSH, RStudio Server, or unix with no display) and
+  uses the manual paste flow instead of hanging on a loopback listener the
+  redirect can never reach. A first-time login over SSH (e.g. through a
+  pipeline that calls `tinytuber::yt_oauth()`) now shows the paste prompt
+  rather than blocking. Pass `manual = TRUE`/`FALSE` to force either mode.
+
 # tinyoauth 0.0.1.5
 
 * `oauth_token_authcode()` now prints "Authorization complete." after a

@@ -60,6 +60,40 @@ expect_equal(tinyoauth:::.parse_redirect_input(
 expect_equal(tinyoauth:::.parse_redirect_input("  4/0Aabc  ")$code, "4/0Aabc")
 expect_equal(length(tinyoauth:::.parse_redirect_input("   ")), 0L)
 
+# --- remote-session detection (.oauth_no_loopback) --------------------------
+.envvars <- c("SSH_CONNECTION", "SSH_TTY", "RSTUDIO_PROGRAM_MODE",
+              "DISPLAY", "WAYLAND_DISPLAY")
+.saved <- Sys.getenv(.envvars, unset = NA_character_)
+.restore <- function() {
+    for (n in names(.saved)) {
+        if (is.na(.saved[[n]])) Sys.unsetenv(n)
+        else do.call(Sys.setenv, stats::setNames(list(.saved[[n]]), n))
+    }
+}
+# Start from a "local desktop" baseline: a display, no SSH/RStudio-server.
+Sys.unsetenv(c("SSH_CONNECTION", "SSH_TTY", "RSTUDIO_PROGRAM_MODE",
+               "WAYLAND_DISPLAY"))
+Sys.setenv(DISPLAY = ":0")
+expect_false(tinyoauth:::.oauth_no_loopback())
+
+# SSH session -> remote
+Sys.setenv(SSH_CONNECTION = "10.0.0.2 51000 10.0.0.1 22")
+expect_true(tinyoauth:::.oauth_no_loopback())
+Sys.unsetenv("SSH_CONNECTION")
+
+# RStudio Server -> remote
+Sys.setenv(RSTUDIO_PROGRAM_MODE = "server")
+expect_true(tinyoauth:::.oauth_no_loopback())
+Sys.unsetenv("RSTUDIO_PROGRAM_MODE")
+
+# Headless unix (no display) -> remote (skip on macOS, which has no DISPLAY
+# even on the desktop, and on Windows)
+if (.Platform$OS.type == "unix" && Sys.info()[["sysname"]] != "Darwin") {
+    Sys.unsetenv(c("DISPLAY", "WAYLAND_DISPLAY"))
+    expect_true(tinyoauth:::.oauth_no_loopback())
+}
+.restore()
+
 # --- token helpers ----------------------------------------------------------
 tok <- structure(list(access_token = "AT", refresh_token = "RT",
                       expires_at = Sys.time() + 3600),

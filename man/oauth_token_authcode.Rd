@@ -4,7 +4,7 @@
 \title{Run the authorization-code flow end to end}
 \usage{
 oauth_token_authcode(client, scope = NULL, port = 1410L,
-                     open_browser = interactive(), timeout = 120, manual = FALSE)
+                     open_browser = interactive(), timeout = 120, manual = NA)
 }
 \arguments{
 \item{client}{A [oauth_client] with an \code{auth_url}.}
@@ -18,11 +18,14 @@ oauth_token_authcode(client, scope = NULL, port = 1410L,
 
 \item{timeout}{Seconds to wait for the redirect.}
 
-\item{manual}{If \code{TRUE}, skip the loopback listener: print the URL and
-read the redirected address (or bare code) from the console. Use this on a
-remote/headless box where the browser runs elsewhere and can't reach the
-listener. The browser will show a "can't reach 127.0.0.1" page after you
-approve -- that is expected; copy its address bar and paste it.}
+\item{manual}{Skip the loopback listener and read the redirected address (or
+bare code) from the console instead. The default (\code{NA}) auto-detects:
+it switches to manual on a remote/headless session (SSH, RStudio Server, or
+unix with no display), where the browser runs elsewhere and the redirect
+can never reach a local listener (so the listener would just hang). Pass
+\code{TRUE}/\code{FALSE} to force it. In manual mode the browser shows a
+"can't reach 127.0.0.1" page after you approve -- that is expected; copy
+its address bar and paste it.}
 }
 \value{
 A \code{tinyoauth_token} (with a refresh token, when the provider
@@ -37,6 +40,6 @@ verifying \code{state}, it exchanges the code.
 \examples{
 \dontrun{
 tok <- oauth_token_authcode(spotify, scope = "user-read-email")
-tok <- oauth_token_authcode(google, manual = TRUE)  # remote/headless
+tok <- oauth_token_authcode(google, manual = TRUE)  # force manual paste
 }
 }

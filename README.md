@@ -43,9 +43,27 @@ curl::handle_setheaders(h, Authorization = oauth_bearer(tok))
 curl::curl_fetch_memory("https://api.spotify.com/v1/me", handle = h)
 ```
 
-The redirect listener binds the **server's** loopback (`127.0.0.1:<port>`), so on
-a remote box either browse on that box, forward the port
-(`ssh -L 1410:127.0.0.1:1410`), or paste the redirected URL back manually.
+### Remote / headless boxes
+
+The redirect listener binds the **server's** loopback (`127.0.0.1:<port>`), so if
+your browser is on another machine (SSH, RStudio Server) the redirect can't reach
+it and the listener would hang. `oauth_token_authcode()` (and anything built on
+it) **auto-detects** SSH / RStudio Server / no-display sessions and switches to a
+**manual paste** flow: it prints the URL, you approve in a browser anywhere, the
+browser fails to load `127.0.0.1` (expected), and you paste that address bar
+back. Force it either way with `manual`:
+
+```r
+# Force manual paste (no listener) -- e.g. for a first login over SSH:
+tok <- oauth_token_authcode(client, scope = "...", manual = TRUE)
+
+# Force the loopback listener even if a remote session is detected:
+tok <- oauth_token_authcode(client, scope = "...", manual = FALSE)
+```
+
+`manual` flows through wrappers that forward `...`, e.g.
+`tinytuber::yt_oauth(..., manual = TRUE)`. The other options still work: browse
+on the box itself, or forward the port (`ssh -L 1410:127.0.0.1:1410`).
 
 ## License
 
