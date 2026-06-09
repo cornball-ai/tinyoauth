@@ -1,3 +1,12 @@
+# tinyoauth 0.0.1.5
+
+* `oauth_token_authcode()` now prints "Authorization complete." after a
+  successful exchange (the manual mode previously finished silently).
+* Clearer `manual = TRUE` instructions: the copy-the-address-bar step now
+  includes the `Ctrl+L` / `Ctrl+C` (`Cmd` on macOS) shortcut, and a short
+  reminder lives in the input prompt itself -- the line still on screen when
+  you return from the browser.
+
 # tinyoauth 0.0.1.4
 
 * `oauth_token_authcode(manual = TRUE)` adds a no-listener mode for
