@@ -6,6 +6,9 @@
 #'
 #' @param client A [oauth_client].
 #' @return Path to the token cache file under \code{tools::R_user_dir}.
+#' @examples
+#' client <- oauth_client("my_app", token_url = "https://example.com/token")
+#' oauth_cache_path(client)
 #' @export
 oauth_cache_path <- function(client) {
     key <- gsub("[^A-Za-z0-9]", "_", client$id)

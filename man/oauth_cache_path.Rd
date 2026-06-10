@@ -14,3 +14,7 @@ Path to the token cache file under \code{tools::R_user_dir}.
 \description{
 Default on-disk cache path for a client's token
 }
+\examples{
+client <- oauth_client("my_app", token_url = "https://example.com/token")
+oauth_cache_path(client)
+}

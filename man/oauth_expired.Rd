@@ -17,3 +17,11 @@ oauth_expired(token, leeway = 60)
 \description{
 Is a token expired?
 }
+\examples{
+expired <- structure(list(expires_at = Sys.time() - 1),
+                     class = "tinyoauth_token")
+oauth_expired(expired)
+fresh <- structure(list(expires_at = Sys.time() + 3600),
+                   class = "tinyoauth_token")
+oauth_expired(fresh)
+}

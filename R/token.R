@@ -45,6 +45,13 @@ oauth_refresh <- function(client, token) {
 #' @param leeway Seconds of slack before the hard expiry (default 60).
 #' @return \code{TRUE} if expired (or within \code{leeway} of it); \code{FALSE}
 #'   when there is no expiry recorded.
+#' @examples
+#' expired <- structure(list(expires_at = Sys.time() - 1),
+#'                      class = "tinyoauth_token")
+#' oauth_expired(expired)
+#' fresh <- structure(list(expires_at = Sys.time() + 3600),
+#'                    class = "tinyoauth_token")
+#' oauth_expired(fresh)
 #' @export
 oauth_expired <- function(token, leeway = 60) {
     if (is.null(token$expires_at)) {
@@ -60,10 +67,11 @@ oauth_expired <- function(token, leeway = 60) {
 #' @return A string like \code{"Bearer abc123"} for use as an HTTP
 #'   \code{Authorization} header.
 #' @examples
-#' \dontrun{
-#' h <- curl::new_handle()
-#' curl::handle_setheaders(h, Authorization = oauth_bearer(tok))
-#' }
+#' tok <- structure(list(access_token = "abc123"), class = "tinyoauth_token")
+#' oauth_bearer(tok)
+#' # pass it to a request, e.g.:
+#' #   curl::handle_setheaders(curl::new_handle(),
+#' #                           Authorization = oauth_bearer(tok))
 #' @export
 oauth_bearer <- function(token) {
     at <- if (inherits(token, "tinyoauth_token")) {

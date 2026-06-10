@@ -70,6 +70,11 @@ oauth_authorize_url <- function(client, scope = NULL, state = NULL) {
 #' @param client A [oauth_client].
 #' @param code The authorization code from the redirect.
 #' @return A \code{tinyoauth_token}.
+#' @examples
+#' \dontrun{
+#' # `code` is the value the provider redirects back after the user approves.
+#' tok <- oauth_exchange_code(client, code)
+#' }
 #' @export
 oauth_exchange_code <- function(client, code) {
     .token_request(client, list(grant_type = "authorization_code",
