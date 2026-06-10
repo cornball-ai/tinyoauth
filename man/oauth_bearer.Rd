@@ -17,8 +17,9 @@ A string like \code{"Bearer abc123"} for use as an HTTP
 Authorization header value for a token
 }
 \examples{
-\dontrun{
-h <- curl::new_handle()
-curl::handle_setheaders(h, Authorization = oauth_bearer(tok))
-}
+tok <- structure(list(access_token = "abc123"), class = "tinyoauth_token")
+oauth_bearer(tok)
+# pass it to a request, e.g.:
+#   curl::handle_setheaders(curl::new_handle(),
+#                           Authorization = oauth_bearer(tok))
 }

@@ -1,3 +1,12 @@
+# tinyoauth 0.1.0
+
+* First CRAN release. Consolidates the 0.0.1.x development cycle: a minimal
+  OAuth 2.0 client (client-credentials and authorization-code grants with
+  token refresh), an `oauth_import_httr()` bridge for legacy `.httr-oauth`
+  caches, a no-listener `manual` mode that auto-engages on remote/headless
+  sessions, and an OpenAI Codex device-login helper. Contributions to the
+  Codex route from Sounkou Mahamane Toure.
+
 # tinyoauth 0.0.1.6
 
 * `oauth_token_authcode()` now defaults `manual = NA`, which auto-detects a

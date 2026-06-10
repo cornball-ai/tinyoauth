@@ -16,3 +16,9 @@ A \code{tinyoauth_token}.
 \description{
 Exchange an authorization code for a token
 }
+\examples{
+\dontrun{
+# `code` is the value the provider redirects back after the user approves.
+tok <- oauth_exchange_code(client, code)
+}
+}
