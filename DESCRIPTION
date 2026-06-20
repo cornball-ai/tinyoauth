@@ -16,7 +16,7 @@ Description: A dependency-light OAuth 2.0
 License: MIT + file LICENSE
 Encoding: UTF-8
 Depends: R (>= 4.0)
-Imports: curl, jsonlite
+Imports: curl, digest, jsonlite
 Suggests: tinytest
 URL: https://github.com/cornball-ai/tinyoauth
 BugReports: https://github.com/cornball-ai/tinyoauth/issues
