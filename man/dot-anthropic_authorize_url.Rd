@@ -6,6 +6,7 @@
 .anthropic_authorize_url(client, pkce, state)
 }
 \description{
-Build the Claude authorization URL (with PKCE)
+The \code{code=true} parameter selects the manual flow, where the callback
+page displays the authorization code (as \code{<code>#<state>}) for pasting.
 }
 \keyword{internal}

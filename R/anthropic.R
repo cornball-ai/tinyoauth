@@ -56,8 +56,8 @@ anthropic_claude_client <- function() {
 #' page displays the authorization code (as \code{<code>#<state>}) for pasting.
 #' @keywords internal
 .anthropic_authorize_url <- function(client, pkce, state) {
-    q <- .form_encode(list(code = "true",
-                           client_id = client$id, response_type = "code",
+    q <- .form_encode(list(code = "true", client_id = client$id,
+                           response_type = "code",
                            redirect_uri = client$redirect_uri,
                            scope = client$scope,
                            code_challenge = pkce$challenge,
