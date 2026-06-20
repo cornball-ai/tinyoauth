@@ -35,18 +35,25 @@ anthropic_claude_client <- function() {
     chartr("+/", "-_", sub("=+$", "", s))
 }
 
+#' A random base64url token of \code{nbytes} entropy
+#'
+#' 32 bytes encodes to a 43-char base64url string, matching the format the
+#' Claude Code client uses for both the PKCE verifier and the OAuth state.
+#' @keywords internal
+.anthropic_nonce <- function(nbytes = 32L) {
+    .b64url(as.raw(sample.int(256L, nbytes, replace = TRUE) - 1L))
+}
+
 #' Generate a PKCE verifier and its S256 challenge
 #'
-#' The verifier is a 64-char token from the unreserved PKCE alphabet (matching
-#' the package's state-generation idiom); the challenge is the base64url-encoded
-#' SHA-256 of the verifier's ASCII bytes.
+#' The verifier is a 43-char base64url token (32 bytes of entropy, matching the
+#' Claude Code client); the challenge is the base64url-encoded SHA-256 of the
+#' verifier's ASCII bytes.
 #' @keywords internal
 .anthropic_pkce <- function() {
-    verifier <- paste(sample(c(0:9, letters, LETTERS), 64, replace = TRUE),
-                      collapse = "")
-    digestfn <- digest::digest
-    challenge <- .b64url(digestfn(charToRaw(verifier), algo = "sha256",
-                                  serialize = FALSE, raw = TRUE))
+    verifier <- .anthropic_nonce()
+    challenge <- .b64url(digest::digest(charToRaw(verifier), algo = "sha256",
+                                        serialize = FALSE, raw = TRUE))
     list(verifier = verifier, challenge = challenge)
 }
 
@@ -131,7 +138,7 @@ anthropic_claude_client <- function() {
 #' @keywords internal
 .anthropic_login <- function(client, open_url = interactive()) {
     pkce <- .anthropic_pkce()
-    state <- paste(sample(c(0:9, letters), 24, replace = TRUE), collapse = "")
+    state <- .anthropic_nonce()
     url <- .anthropic_authorize_url(client, pkce, state)
     message(
             "== Authorize Claude (manual paste) ==\n\n",

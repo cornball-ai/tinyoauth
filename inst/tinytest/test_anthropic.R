@@ -15,9 +15,15 @@ b64 <- tinyoauth:::.b64url(charToRaw("any carnal pleasure."))
 expect_false(grepl("=", b64, fixed = TRUE))
 expect_false(grepl("[+/]", b64))
 
+# --- nonce: 43-char base64url (32 bytes), matching the Claude Code client ---
+n <- tinyoauth:::.anthropic_nonce()
+expect_equal(nchar(n), 43L)
+expect_false(grepl("[^A-Za-z0-9_-]", n))
+
 # --- PKCE: challenge is base64url(sha256(verifier)), S256-correct ---
 pk <- tinyoauth:::.anthropic_pkce()
-expect_true(nchar(pk$verifier) >= 43L && nchar(pk$verifier) <= 128L)
+expect_equal(nchar(pk$verifier), 43L)
+expect_false(grepl("[^A-Za-z0-9_-]", pk$verifier))
 recomputed <- tinyoauth:::.b64url(
     digest::digest(charToRaw(pk$verifier), algo = "sha256",
                    serialize = FALSE, raw = TRUE))
