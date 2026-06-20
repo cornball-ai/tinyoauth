@@ -24,7 +24,7 @@ anthropic_claude_client <- function() {
                            token_url = "https://platform.claude.com/v1/oauth/token",
                            auth_url = "https://claude.com/cai/oauth/authorize",
                            redirect_uri = "https://platform.claude.com/oauth/code/callback")
-    client$scope <- "org:create_api_key user:profile user:inference"
+    client$scope <- "user:inference"
     client
 }
 
@@ -51,9 +51,13 @@ anthropic_claude_client <- function() {
 }
 
 #' Build the Claude authorization URL (with PKCE)
+#'
+#' The \code{code=true} parameter selects the manual flow, where the callback
+#' page displays the authorization code (as \code{<code>#<state>}) for pasting.
 #' @keywords internal
 .anthropic_authorize_url <- function(client, pkce, state) {
-    q <- .form_encode(list(client_id = client$id, response_type = "code",
+    q <- .form_encode(list(code = "true",
+                           client_id = client$id, response_type = "code",
                            redirect_uri = client$redirect_uri,
                            scope = client$scope,
                            code_challenge = pkce$challenge,
