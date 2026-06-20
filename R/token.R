@@ -94,4 +94,3 @@ print.tinyoauth_token <- function(x, ...) {
         }, "\n", sep = "")
     invisible(x)
 }
-

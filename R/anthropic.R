@@ -20,10 +20,10 @@
 #' @export
 anthropic_claude_client <- function() {
     client <- oauth_client(
-        id = "9d1c250a-e61b-44d9-88ed-5944d1962f5e",
-        token_url = "https://console.anthropic.com/v1/oauth/token",
-        auth_url = "https://claude.ai/oauth/authorize",
-        redirect_uri = "https://console.anthropic.com/oauth/code/callback")
+                           id = "9d1c250a-e61b-44d9-88ed-5944d1962f5e",
+                           token_url = "https://console.anthropic.com/v1/oauth/token",
+                           auth_url = "https://claude.ai/oauth/authorize",
+                           redirect_uri = "https://console.anthropic.com/oauth/code/callback")
     client$scope <- "org:create_api_key user:profile user:inference"
     client
 }
@@ -53,14 +53,12 @@ anthropic_claude_client <- function() {
 #' Build the Claude authorization URL (with PKCE and code=true)
 #' @keywords internal
 .anthropic_authorize_url <- function(client, pkce, state) {
-    q <- .form_encode(list(code = "true",
-                           client_id = client$id,
+    q <- .form_encode(list(code = "true", client_id = client$id,
                            response_type = "code",
                            redirect_uri = client$redirect_uri,
                            scope = client$scope,
                            code_challenge = pkce$challenge,
-                           code_challenge_method = "S256",
-                           state = state))
+                           code_challenge_method = "S256", state = state))
     paste0(client$auth_url, "?", q)
 }
 
@@ -89,11 +87,8 @@ anthropic_claude_client <- function() {
 #' @keywords internal
 .anthropic_exchange <- function(client, code, state, verifier) {
     .anthropic_post_json(client$token_url,
-                         list(grant_type = "authorization_code",
-                              code = code,
-                              state = state,
-                              redirect_uri = client$redirect_uri,
-                              client_id = client$id,
+                         list(grant_type = "authorization_code", code = code, state = state,
+                              redirect_uri = client$redirect_uri, client_id = client$id,
                               code_verifier = verifier))
 }
 
@@ -103,8 +98,7 @@ anthropic_claude_client <- function() {
     rt <- token$refresh_token %||%
     stop("anthropic: token has no refresh_token", call. = FALSE)
     fresh <- .anthropic_post_json(client$token_url,
-                                  list(grant_type = "refresh_token",
-                                       refresh_token = rt,
+                                  list(grant_type = "refresh_token", refresh_token = rt,
                                        client_id = client$id))
     if (is.null(fresh$refresh_token)) {
         fresh$refresh_token <- rt
@@ -199,7 +193,8 @@ oauth_token_anthropic <- function(cache = oauth_cache_path(anthropic_claude_clie
     }
 
     if (!is.null(tok) && oauth_expired(tok) && !is.null(tok$refresh_token)) {
-        tok <- tryCatch(.anthropic_refresh(client, tok), error = function(e) NULL)
+        tok <- tryCatch(.anthropic_refresh(client, tok),
+                        error = function(e) NULL)
     }
 
     need_new <- is.null(tok) || is.null(tok$access_token) ||

@@ -42,4 +42,3 @@ print.tinyoauth_client <- function(x, ...) {
     cat("  redirect:  ", x$redirect_uri, "\n", sep = "")
     invisible(x)
 }
-

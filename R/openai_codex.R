@@ -86,7 +86,8 @@ openai_codex_client <- function() {
         return("slow_down")
     }
     # Hard stops: the user denied, or the device code expired/was cancelled.
-    if (grepl("access_denied|expired_token|deviceauth_token_expired|cancel", err)) {
+    if (grepl("access_denied|expired_token|deviceauth_token_expired|cancel",
+              err)) {
         return("error")
     }
     # Still waiting for the user to authorize.
@@ -251,4 +252,3 @@ oauth_token_openai_codex <- function(cache = oauth_cache_path(openai_codex_clien
     }
     tok
 }
-
