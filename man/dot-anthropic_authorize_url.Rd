@@ -1,11 +1,11 @@
 % tinyrox says don't edit this manually, but it can't stop you!
 \name{.anthropic_authorize_url}
 \alias{.anthropic_authorize_url}
-\title{Build the Claude authorization URL (with PKCE and code=true)}
+\title{Build the Claude authorization URL (with PKCE)}
 \usage{
 .anthropic_authorize_url(client, pkce, state)
 }
 \description{
-Build the Claude authorization URL (with PKCE and code=true)
+Build the Claude authorization URL (with PKCE)
 }
 \keyword{internal}

@@ -53,8 +53,7 @@ anthropic_claude_client <- function() {
 #' Build the Claude authorization URL (with PKCE)
 #' @keywords internal
 .anthropic_authorize_url <- function(client, pkce, state) {
-    q <- .form_encode(list(client_id = client$id,
-                           response_type = "code",
+    q <- .form_encode(list(client_id = client$id, response_type = "code",
                            redirect_uri = client$redirect_uri,
                            scope = client$scope,
                            code_challenge = pkce$challenge,
