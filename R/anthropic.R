@@ -21,9 +21,9 @@
 anthropic_claude_client <- function() {
     client <- oauth_client(
                            id = "9d1c250a-e61b-44d9-88ed-5944d1962f5e",
-                           token_url = "https://console.anthropic.com/v1/oauth/token",
-                           auth_url = "https://claude.ai/oauth/authorize",
-                           redirect_uri = "https://console.anthropic.com/oauth/code/callback")
+                           token_url = "https://platform.claude.com/v1/oauth/token",
+                           auth_url = "https://claude.com/cai/oauth/authorize",
+                           redirect_uri = "https://platform.claude.com/oauth/code/callback")
     client$scope <- "org:create_api_key user:profile user:inference"
     client
 }
@@ -50,10 +50,10 @@ anthropic_claude_client <- function() {
     list(verifier = verifier, challenge = challenge)
 }
 
-#' Build the Claude authorization URL (with PKCE and code=true)
+#' Build the Claude authorization URL (with PKCE)
 #' @keywords internal
 .anthropic_authorize_url <- function(client, pkce, state) {
-    q <- .form_encode(list(code = "true", client_id = client$id,
+    q <- .form_encode(list(client_id = client$id,
                            response_type = "code",
                            redirect_uri = client$redirect_uri,
                            scope = client$scope,

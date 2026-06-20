@@ -6,8 +6,8 @@
 cl <- anthropic_claude_client()
 expect_inherits(cl, "tinyoauth_client")
 expect_equal(cl$id, "9d1c250a-e61b-44d9-88ed-5944d1962f5e")
-expect_equal(cl$token_url, "https://console.anthropic.com/v1/oauth/token")
-expect_equal(cl$auth_url, "https://claude.ai/oauth/authorize")
+expect_equal(cl$token_url, "https://platform.claude.com/v1/oauth/token")
+expect_equal(cl$auth_url, "https://claude.com/cai/oauth/authorize")
 expect_true(grepl("user:inference", cl$scope, fixed = TRUE))
 
 # --- base64url: no padding, url-safe alphabet ---
@@ -31,12 +31,13 @@ expect_equal(
 
 # --- authorize URL carries every required OAuth + PKCE param ---
 u <- tinyoauth:::.anthropic_authorize_url(cl, pk, "STATE123")
-expect_true(startsWith(u, "https://claude.ai/oauth/authorize?"))
+expect_true(startsWith(u, "https://claude.com/cai/oauth/authorize?"))
 expect_true(grepl("code_challenge_method=S256", u, fixed = TRUE))
 expect_true(grepl(paste0("code_challenge=", pk$challenge), u, fixed = TRUE))
 expect_true(grepl("response_type=code", u, fixed = TRUE))
 expect_true(grepl("state=STATE123", u, fixed = TRUE))
-expect_true(grepl("code=true", u, fixed = TRUE))
+# manual flow uses a hosted callback page; no code=true param
+expect_false(grepl("code=true", u, fixed = TRUE))
 
 # --- code parsing: CODE#STATE, full callback URL, bare code, empty ---
 p1 <- tinyoauth:::.anthropic_parse_code("AUTHCODE#STATE123")
