@@ -14,4 +14,3 @@
 
 # Base R gained `%||%` in 4.4; define our own so we can support R (>= 4.0).
 `%||%` <- function(a, b) if (is.null(a)) b else a
-

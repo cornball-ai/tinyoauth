@@ -1,5 +1,6 @@
 # tinyrox says don't edit this manually, but it can't stop you!
 
+export(anthropic_claude_client)
 export(oauth_authorize_url)
 export(oauth_bearer)
 export(oauth_cache_path)
@@ -11,6 +12,7 @@ export(oauth_jwt_payload)
 export(oauth_refresh)
 export(oauth_request)
 export(oauth_token)
+export(oauth_token_anthropic)
 export(oauth_token_authcode)
 export(oauth_token_client)
 export(oauth_token_openai_codex)

@@ -97,7 +97,8 @@ oauth_exchange_code <- function(client, code) {
             x
         }
         qs <- sub("#.*$", "", qs)
-        pairs <- strsplit(strsplit(qs, "&", fixed = TRUE)[[1]], "=", fixed = TRUE)
+        pairs <- strsplit(strsplit(qs, "&", fixed = TRUE)[[1]], "=",
+                          fixed = TRUE)
         out <- lapply(pairs, function(p) {
             if (length(p) > 1) {
                 utils::URLdecode(paste(p[-1], collapse = "="))
@@ -128,9 +129,9 @@ oauth_exchange_code <- function(client, code) {
         return(TRUE)
     }
     .Platform$OS.type == "unix" &&
-        !identical(Sys.info()[["sysname"]], "Darwin") &&
-        !nzchar(Sys.getenv("DISPLAY")) &&
-        !nzchar(Sys.getenv("WAYLAND_DISPLAY"))
+    !identical(Sys.info()[["sysname"]], "Darwin") &&
+    !nzchar(Sys.getenv("DISPLAY")) &&
+    !nzchar(Sys.getenv("WAYLAND_DISPLAY"))
 }
 
 #' Run the authorization-code flow end to end
@@ -199,7 +200,7 @@ oauth_token_authcode <- function(client, scope = NULL, port = 1410L,
         # The prompt carries the key reminder, because it is the line still on
         # screen when the user returns from the (now-broken) browser tab.
         q <- .parse_redirect_input(
-            readline("Paste address bar [Ctrl+L, Ctrl+C to copy it] or code: "))
+                                   readline("Paste address bar [Ctrl+L, Ctrl+C to copy it] or code: "))
     } else {
         message("Open this URL to authorize:\n  ", url)
         if (isTRUE(open_browser)) {
@@ -222,11 +223,10 @@ oauth_token_authcode <- function(client, scope = NULL, port = 1410L,
     }
     tok <- oauth_exchange_code(client, q$code)
     message("Authorization complete.",
-            if (!is.null(tok$refresh_token)) {
-                " A refresh token was issued, so this won't be needed again."
-            } else {
-                ""
-            })
+        if (!is.null(tok$refresh_token)) {
+            " A refresh token was issued, so this won't be needed again."
+        } else {
+            ""
+        })
     tok
 }
-

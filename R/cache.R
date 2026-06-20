@@ -54,4 +54,3 @@ oauth_token <- function(client, scope = NULL,
     }
     tok
 }
-

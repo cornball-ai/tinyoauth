@@ -69,4 +69,3 @@ oauth_import_httr <- function(path = ".httr-oauth", which = 1L) {
 
     list(client = client, token = token)
 }
-

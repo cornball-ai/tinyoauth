@@ -1,3 +1,12 @@
+# tinyoauth 0.0.1.7
+
+* New Anthropic Claude (Claude Code) login route: `anthropic_claude_client()`
+  and `oauth_token_anthropic()`. An OAuth 2.0 authorization-code grant with
+  client-generated PKCE (S256) against Anthropic's public Claude Code client,
+  using the manual-paste flow (Claude's callback page displays the code).
+  Verified end to end against a live Claude subscription. Adds `digest` to
+  Imports for the S256 challenge.
+
 # tinyoauth 0.0.1.6
 
 * `oauth_token_authcode()` now defaults `manual = NA`, which auto-detects a
