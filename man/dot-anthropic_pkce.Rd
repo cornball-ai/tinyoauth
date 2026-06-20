@@ -6,8 +6,8 @@
 .anthropic_pkce()
 }
 \description{
-The verifier is a 64-char token from the unreserved PKCE alphabet (matching
-the package's state-generation idiom); the challenge is the base64url-encoded
-SHA-256 of the verifier's ASCII bytes.
+The verifier is a 43-char base64url token (32 bytes of entropy, matching the
+Claude Code client); the challenge is the base64url-encoded SHA-256 of the
+verifier's ASCII bytes.
 }
 \keyword{internal}
