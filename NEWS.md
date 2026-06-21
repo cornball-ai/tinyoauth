@@ -1,4 +1,4 @@
-# tinyoauth 0.0.1.7
+# tinyoauth 0.1.0.1
 
 * New Anthropic Claude (Claude Code) login route: `anthropic_claude_client()`
   and `oauth_token_anthropic()`. An OAuth 2.0 authorization-code grant with
@@ -6,6 +6,15 @@
   using the manual-paste flow (Claude's callback page displays the code).
   Verified end to end against a live Claude subscription. Adds `digest` to
   Imports for the S256 challenge.
+
+# tinyoauth 0.1.0
+
+* First CRAN release. Consolidates the 0.0.1.x development cycle: a minimal
+  OAuth 2.0 client (client-credentials and authorization-code grants with
+  token refresh), an `oauth_import_httr()` bridge for legacy `.httr-oauth`
+  caches, a no-listener `manual` mode that auto-engages on remote/headless
+  sessions, and an OpenAI Codex device-login helper. Contributions to the
+  Codex route from Sounkou Mahamane Toure.
 
 # tinyoauth 0.0.1.6
 
