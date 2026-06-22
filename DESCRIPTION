@@ -1,8 +1,8 @@
 Package: tinyoauth
 Type: Package
 Title: Minimal OAuth 2.0 Client
-Version: 0.1.0.1
-Date: 2026-06-20
+Version: 0.1.1
+Date: 2026-06-22
 Authors@R: c(
     person("Troy", "Hernandez", role = c("aut", "cre"),
            email = "troy@cornball.ai",

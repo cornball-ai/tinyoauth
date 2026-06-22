@@ -1,4 +1,4 @@
-# tinyoauth 0.1.0.1
+# tinyoauth 0.1.1
 
 * New Anthropic Claude (Claude Code) login route: `anthropic_claude_client()`
   and `oauth_token_anthropic()`. An OAuth 2.0 authorization-code grant with
